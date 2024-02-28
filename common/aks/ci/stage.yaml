@@ -1,0 +1,17 @@
+parameters:
+  - name: isbuild
+    type: string
+  - name: env
+    type: string
+    default: 'Build'
+  - name: condition
+    default: succeeded()
+
+stages:
+  - stage: "CI_${{ parameters.env }}"
+    condition: ${{ parameters.condition }}
+    displayName: "Build and Push Image"
+    jobs:
+      - template: job.yaml
+        parameters:
+          env: ${{ parameters.env }}

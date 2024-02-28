@@ -1,0 +1,38 @@
+parameters:
+  - name: env
+    type: string
+  - name: condition
+    default: succeeded()
+
+jobs:
+  - deployment: "Build_and_Push_${{ parameters.env }}"
+    displayName: "Build & Push ${{ parameters.env }}"
+    timeoutInMinutes: 300
+    variables:
+      - name: agentPool
+        value: 'Azure Linux Build'
+      - name: dockerBuildContext
+        value: 'src/backend'
+      - name: dockerfile
+        value: 'src/backend/ContingentWorkApi/Dockerfile'
+    environment: aks-ci-${{ parameters.env }}
+    pool: ${{ variables.agentPool }}
+    workspace:
+      clean: all
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: none
+            - checkout: self
+            - task: Docker@2
+              displayName: "Docker Build"
+              inputs:
+                command: build
+                containerRegistry: 'zwecoercrd001'
+                repository: 'vialto/test'
+                tags: |
+                  $(Build.BuildNumber)
+                  latest
+                buildContext: ${{ variables.dockerBuildContext }}
+                Dockerfile: ${{ variables.dockerBuildContext }}
