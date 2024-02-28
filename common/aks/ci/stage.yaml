@@ -4,7 +4,6 @@ parameters:
     default: true
   - name: env
     type: string
-    default: 'Build'
   - name: condition
     default: succeeded()
 
