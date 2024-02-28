@@ -25,6 +25,16 @@ jobs:
           steps:
             - download: none
             - checkout: self
+            - task: Docker@0
+              displayName: 'Build an image'
+              inputs:
+                azureSubscription: 'SPN-WE-COER-C-N002'
+                azureContainerRegistry: '{"loginServer":"zwecoercrd001.azurecr.io", "id" : "/subscriptions/b3b5afcf-283b-451d-ada1-0cfaacb75058/resourceGroups/VZI-WE-NP-RG-COER-D002/providers/Microsoft.ContainerRegistry/registries/ZWECOERCRD001"}'
+                dockerFile: src/backend/ContingentWorkApi/Dockerfile
+                defaultContext: false
+                context: src/backend
+                imageName: '$(Build.Repository.Name):$(Build.BuildNumber)'
+              enabled: true
             - task: Docker@2
               displayName: "Docker Build"
               inputs:
