@@ -10,7 +10,7 @@ jobs:
     timeoutInMinutes: 300
     variables:
       - name: agentPool
-        value: 'Hosted Windows 2019 with VS2019'
+        value: 'Azure Pipelines'
       - name: dockerBuildContext
         value: 'src/backend'
       - name: dockerfile
