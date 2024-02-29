@@ -27,6 +27,6 @@ jobs:
           Dockerfile: ${{ parameters.dockerfile }}
           buildContext: ${{ parameters.dockerBuildContext }}
           tags: |
-            $(Date:yyyyMMdd)$(Rev:.r)
+            $(Build.BuildNumber)
             latest
         enabled: true
