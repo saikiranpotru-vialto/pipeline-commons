@@ -15,6 +15,10 @@ jobs:
         value: 'src/backend'
       - name: dockerfile
         value: 'src/backend/ContingentWorkApi/Dockerfile'
+      - name: repo
+        value: 'vialto/test'
+      - name: acrname
+        value: 'ZWECOERCRD001'
     environment: aks-ci-${{ parameters.env }}
     pool: ${{ variables.agentPool }}
     workspace:
@@ -25,33 +29,11 @@ jobs:
           steps:
             - download: none
             - checkout: self
-            - task: Docker@0
-              displayName: 'Build an image'
-              inputs:
-                azureSubscription: 'SPN-WE-COER-C-N002'
-                azureContainerRegistry: '{"loginServer":"zwecoercrd001.azurecr.io", "id" : "/subscriptions/b3b5afcf-283b-451d-ada1-0cfaacb75058/resourceGroups/VZI-WE-NP-RG-COER-D002/providers/Microsoft.ContainerRegistry/registries/ZWECOERCRD001"}'
-                dockerFile: src/backend/ContingentWorkApi/Dockerfile
-                defaultContext: false
-                context: src/backend
-                imageName: 'vialto/test'
-              enabled: false
             - task: Docker@2
-              displayName: "Docker Build"
+              displayName: 'Build and Push to ACR: ${{ variables.acrname }}'
               inputs:
-                command: build
-                containerRegistry: 'zwecoercrd001'
-                repository: 'vialto:test'
-                tags: |
-                  $(Build.BuildNumber)
-                  latest
-                buildContext: ${{ variables.dockerBuildContext }}
-                Dockerfile: ${{ variables.dockerfile }}
-              enabled: false
-            - task: Docker@2
-              displayName: buildAndPush
-              inputs:
-                containerRegistry: ZWECOERCRD001
-                repository: 'vialto/test'
+                containerRegistry: ${{ variables.acrname }}
+                repository: ${{ variables.repo }}
                 Dockerfile: ${{ variables.dockerfile }}
                 buildContext: ${{ variables.dockerBuildContext }}
                 tags: |
