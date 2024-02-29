@@ -51,7 +51,7 @@ jobs:
               displayName: buildAndPush
               inputs:
                 containerRegistry: ZWECOERCRD001
-                repository: 'vialto:test'
+                repository: 'vialto/test'
                 Dockerfile: src/backend/ContingentWorkApi/Dockerfile
                 buildContext: src/backend
                 tags: |
