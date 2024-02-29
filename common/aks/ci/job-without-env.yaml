@@ -1,35 +1,31 @@
 parameters:
-  - name: env
+  - name: acrname
+    type: string
+  - name: agentPool
+    type: string
+  - name: repo
+    type: string
+  - name: dockerBuildContext
+    type: string
+  - name: dockerfile
     type: string
   - name: condition
     default: succeeded()
 
 jobs:
-  - deployment: "Build_and_Push_${{ parameters.env }}"
-    displayName: "Build & Push ${{ parameters.env }}"
-    timeoutInMinutes: 300
-    variables:
-      - name: agentPool
-        value: 'Azure Pipelines'
-      - name: dockerBuildContext
-        value: 'src/backend'
-      - name: dockerfile
-        value: 'src/backend/ContingentWorkApi/Dockerfile'
-      - name: repo
-        value: 'vialto/test'
-      - name: acrname
-        value: 'ZWECOERCRD001'
-    pool: ${{ variables.agentPool }}
+  - job: App_Build_Push_ACR
+    displayName: "Build & Push ${{ parameters.acrname }}"
+    pool: ${{ parameters.agentPool }}
     steps:
       - download: none
       - checkout: self
       - task: Docker@2
-        displayName: 'Build and Push to ACR: ${{ variables.acrname }}'
+        displayName: 'Build and Push to ACR: ${{ parameters.acrname }}'
         inputs:
-          containerRegistry: ${{ variables.acrname }}
-          repository: ${{ variables.repo }}
-          Dockerfile: ${{ variables.dockerfile }}
-          buildContext: ${{ variables.dockerBuildContext }}
+          containerRegistry: ${{ parameters.acrname }}
+          repository: ${{ parameters.repo }}
+          Dockerfile: ${{ parameters.dockerfile }}
+          buildContext: ${{ parameters.dockerBuildContext }}
           tags: |
             $(Build.BuildId)
             latest
