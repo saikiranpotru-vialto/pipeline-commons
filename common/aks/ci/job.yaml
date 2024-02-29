@@ -33,16 +33,28 @@ jobs:
                 dockerFile: src/backend/ContingentWorkApi/Dockerfile
                 defaultContext: false
                 context: src/backend
-                imageName: '$(Build.Repository.Name):$(Build.BuildNumber)'
-              enabled: true
+                imageName: 'vialto/test'
+              enabled: false
             - task: Docker@2
               displayName: "Docker Build"
               inputs:
                 command: build
                 containerRegistry: 'zwecoercrd001'
-                repository: 'vialto/test'
+                repository: 'vialto:test'
                 tags: |
                   $(Build.BuildNumber)
                   latest
                 buildContext: ${{ variables.dockerBuildContext }}
                 Dockerfile: ${{ variables.dockerBuildContext }}
+                enabled: false
+              - task: Docker@2
+                displayName: buildAndPush
+                inputs:
+                  containerRegistry: ZWECOERCRD001
+                  repository: 'vialto:test'
+                  Dockerfile: src/backend/ContingentWorkApi/Dockerfile
+                  buildContext: src/backend
+                  tags: |
+                  $(Build.BuildId)
+                  latest
+                enabled: true
