@@ -1,0 +1,14 @@
+parameters:
+  - name: env
+    type: string
+  - name: condition
+    default: succeeded()
+
+stages:
+  - stage: "CD_${{ parameters.env }}"
+    condition: ${{ parameters.condition }}
+    displayName: "Deploy ${{ parameters.env }}"
+    jobs:
+      - template: job.yaml
+        parameters:
+          env: ${{ parameters.env }}
