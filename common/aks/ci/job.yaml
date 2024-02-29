@@ -47,14 +47,14 @@ jobs:
                 buildContext: ${{ variables.dockerBuildContext }}
                 Dockerfile: ${{ variables.dockerfile }}
                 enabled: false
-              - task: Docker@2
-                displayName: buildAndPush
-                inputs:
-                  containerRegistry: ZWECOERCRD001
-                  repository: 'vialto:test'
-                  Dockerfile: src/backend/ContingentWorkApi/Dockerfile
-                  buildContext: src/backend
-                  tags: |
-                    $(Build.BuildId)
-                    latest
-                enabled: true
+            - task: Docker@2
+              displayName: buildAndPush
+              inputs:
+                containerRegistry: ZWECOERCRD001
+                repository: 'vialto:test'
+                Dockerfile: src/backend/ContingentWorkApi/Dockerfile
+                buildContext: src/backend
+                tags: |
+                  $(Build.BuildId)
+                  latest
+              enabled: true
