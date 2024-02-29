@@ -11,6 +11,9 @@ parameters:
     default: 'src/backend'
   - name: dockerfile
     default: 'src/backend/ContingentWorkApi/Dockerfile'
+  - name: condition
+    default: succeeded()
+    
 stages:
   - stage: "Build and Push"
     condition: ${{ parameters.condition }}
