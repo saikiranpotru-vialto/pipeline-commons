@@ -12,6 +12,6 @@ stages:
     condition: ${{ parameters.condition }}
     displayName: "Build and Push Image"
     jobs:
-      - template: job.yaml
+      - template: job-without-env.yaml
         parameters:
           env: ${{ parameters.env }}
