@@ -52,8 +52,8 @@ jobs:
               inputs:
                 containerRegistry: ZWECOERCRD001
                 repository: 'vialto/test'
-                Dockerfile: 'src/backend/ContingentWorkApi/Dockerfile'
-                buildContext: src/backend
+                Dockerfile: ${{ variables.dockerfile }}
+                buildContext: ${{ variables.dockerBuildContext }}
                 tags: |
                   $(Build.BuildId)
                   latest
