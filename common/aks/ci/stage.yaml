@@ -15,7 +15,7 @@ parameters:
     default: succeeded()
 
 stages:
-  - stage: "Build_&_Push"
+  - stage: "Build__Push"
     condition: ${{ parameters.condition }}
     displayName: "Build and Push Image"
     jobs:
