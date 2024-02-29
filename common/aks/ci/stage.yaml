@@ -1,17 +1,25 @@
 parameters:
-  - name: isbuild
+  - name: acrname
     type: string
-    default: true
-  - name: env
+    default: 'ZWECOERCRD001'
+  - name: agentPool
     type: string
-  - name: condition
-    default: succeeded()
-
+    default: 'Azure Pipelines'
+  - name: repo
+    default: 'vialto/test'
+  - name: dockerBuildContext
+    default: 'src/backend'
+  - name: dockerfile
+    default: 'src/backend/ContingentWorkApi/Dockerfile'
 stages:
-  - stage: "CI_${{ parameters.env }}"
+  - stage: "Build and Push"
     condition: ${{ parameters.condition }}
     displayName: "Build and Push Image"
     jobs:
       - template: job-without-env.yaml
         parameters:
-          env: ${{ parameters.env }}
+          acrname: ${{ parameters.acrname }}
+          repo: ${{ parameters.repo }}
+          agentPool: ${{ parameters.agentPool }}
+          dockerBuildContext: ${{ parameters.dockerBuildContext }}
+          dockerfile: ${{ parameters.dockerfile }}
