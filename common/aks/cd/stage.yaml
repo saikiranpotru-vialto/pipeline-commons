@@ -1,6 +1,7 @@
 parameters:
   - name: env
     type: string
+    default: dev
   - name: condition
     default: succeeded()
   - name: agentPool
