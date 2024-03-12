@@ -15,7 +15,7 @@ jobs:
       - name: folderName
         value: ${{ parameters.projectName }}/
     environment: aks-cd-${{ parameters.env }}
-    pool: ${{ variables.agentPool }}
+    pool: ${{ parameters.agentPool }}
     #dependsOn: ${{ parameters.dependsOn }}
     #condition: ${{ parameters.condition }}
     workspace:
