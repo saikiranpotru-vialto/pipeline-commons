@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "immigration.fullname" . }}
+  name: {{ include "TBD.fullname" . }}
   labels:
-    {{- include "immigration.labels" . | nindent 4 }}
+    {{- include "TBD.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "immigration.selectorLabels" . | nindent 6 }}
+      {{- include "TBD.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,13 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "immigration.selectorLabels" . | nindent 8 }}
+        {{- include "TBD.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "immigration.serviceAccountName" . }}
+      serviceAccountName: {{ include "TBD.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -147,7 +147,7 @@ spec:
           {{- if .Values.keyvault }}
           volumeMounts:
             {{- range $key, $value := .Values.keyvault.vaults }}
-            - name: "{{ include "immigration.fullname" $ | lower }}-{{ $key | lower }}"
+            - name: "{{ include "TBD.fullname" $ | lower }}-{{ $key | lower }}"
               mountPath: "/mnt/{{ $key }}-secrets-store"
               readOnly: true
             {{- end }}
@@ -169,11 +169,11 @@ spec:
       {{- if .Values.keyvault }}
       volumes:
         {{- range $key, $value := .Values.keyvault.vaults }}
-        - name: "{{ include "immigration.fullname" $ | lower }}-{{ $key | lower }}"
+        - name: "{{ include "TBD.fullname" $ | lower }}-{{ $key | lower }}"
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: "{{ include "immigration.fullname" $ | lower }}-{{ $key | lower }}"
+              secretProviderClass: "{{ include "TBD.fullname" $ | lower }}-{{ $key | lower }}"
         {{- end }}
       {{- end }}

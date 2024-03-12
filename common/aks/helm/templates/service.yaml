@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "immigration.fullname" . }}
+  name: {{ include "TBD.fullname" . }}
   annotations:
 #    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
   labels:
-    {{- include "immigration.labels" . | nindent 4 }}
+    {{- include "TBD.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -14,4 +14,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "immigration.selectorLabels" . | nindent 4 }}
+    {{- include "TBD.selectorLabels" . | nindent 4 }}

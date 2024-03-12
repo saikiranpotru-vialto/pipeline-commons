@@ -59,11 +59,15 @@ jobs:
                   Write-Host "==== Prepared Chart ====="
                   Get-Content Chart.yaml
 
-                  #Write-Host " Prepare _helpers.tpl"
-                  #$helpers = (Get-Content -Path "templates/_helpers.tpl").Replace('TBD', '${{ parameters.serviceName }}')
-                  #$helpers
-                  Write-Host "==== Created Chart ====="
-                  Get-Content "${{ parameters.serviceName }}/Chart.yaml"
+                  Write-Host "Looping through template folder"
+                  $yamlfiles=(Get-ChildItem -Path "$(Pipeline.Workspace)/commons/common/aks/helm/templates" -Recurse -File).FullName.Replace("$(Pipeline.Workspace)/commons/common/aks/helm/templates/","")
+                  foreach ($yamlfile in $yamlfiles)
+                  {
+                      Write-Host "Replacement for file $yamlfile"
+                      (Get-Content -Path "templates/$yamlfile").Replace('TBD', '${{ parameters.serviceName }}') | Out-File "templates/$yamlfile"
+                      Write-Host "==== After Replcement ===="
+                      Get-Content "templates/$yamlfile"
+                  }
                 pwsh: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
             - task: AzureCLI@2

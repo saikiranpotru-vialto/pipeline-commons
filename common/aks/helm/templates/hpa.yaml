@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "immigration.fullname" . }}
+  name: {{ include "TBD.fullname" . }}
   labels:
-    {{- include "immigration.labels" . | nindent 4 }}
+    {{- include "TBD.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "immigration.fullname" . }}
+    name: {{ include "TBD.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
