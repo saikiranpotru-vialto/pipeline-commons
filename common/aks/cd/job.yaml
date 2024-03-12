@@ -5,7 +5,7 @@ parameters:
     default: succeeded()
   - name: agentPool
     type: string
-  - name: projectName
+  - name: serviceName
     type: string
 jobs:
   - deployment: "Deploy_${{ parameters.env }}"
@@ -27,6 +27,16 @@ jobs:
               path: commons
               clean: true
             - task: PowerShell@2
+              displayName: "Install Chart"
+              inputs:
+                targetType: "inline"
+                script: |
+                  $appVersion = "$(Build.BuildNumber)"
+                  helm create ${{ parameters.serviceName }}
+                  ls -la ${{ parameters.serviceName }}
+                pwsh: true
+                workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
+            - task: PowerShell@2
               displayName: "Prepare chart"
               inputs:
                 targetType: "inline"
@@ -41,17 +51,19 @@ jobs:
                   Write-Host "Prepare Chart.yaml"
                   $yaml = Get-Content -Path Chart.yaml | Out-String
                   $chart = ConvertFrom-Yaml $yaml
-                  $chart['name']=  "${{ parameters.projectName }}"
-                  $chart['description']=  "A Helm chart for Kubernetes ${{ parameters.projectName }}: ${{ parameters.env }}"
+                  $chart['name']=  "${{ parameters.serviceName }}"
+                  $chart['description']=  "A Helm chart for Kubernetes ${{ parameters.serviceName }}: ${{ parameters.env }}"
                   $chart['version'] = "$chartVersion"
                   $chart['appVersion'] = $appVersion
                   ConvertTo-Yaml $chart | Out-File -Path Chart.yaml
                   Write-Host "==== Prepared Chart ====="
                   Get-Content Chart.yaml
 
-                  Write-Host " Prepare _helpers.tpl"
-                  $helpers = (Get-Content -Path "templates/_helpers.tpl").Replace('TBD', '${{ parameters.projectName }}')
-                  $helpers
+                  #Write-Host " Prepare _helpers.tpl"
+                  #$helpers = (Get-Content -Path "templates/_helpers.tpl").Replace('TBD', '${{ parameters.serviceName }}')
+                  #$helpers
+                  Write-Host "==== Created Chart ====="
+                  Get-Content "${{ parameters.serviceName }}/Chart.yaml"
                 pwsh: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
             - task: AzureCLI@2

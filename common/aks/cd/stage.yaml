@@ -6,7 +6,7 @@ parameters:
   - name: agentPool
     type: string
     default: 'Azure Pipelines'
-  - name: projectName
+  - name: serviceName
     type: string
     default: 'Test'
 
@@ -19,4 +19,4 @@ stages:
         parameters:
           env: ${{ parameters.env }}
           agentPool: ${{ parameters.agentPool }}
-          projectName: ${{ parameters.projectName }}
+          serviceName: ${{ parameters.serviceName }}
