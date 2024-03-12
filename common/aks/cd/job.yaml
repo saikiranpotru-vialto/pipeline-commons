@@ -16,8 +16,6 @@ jobs:
         value: ${{ parameters.projectName }}/
     environment: aks-cd-${{ parameters.env }}
     pool: ${{ parameters.agentPool }}
-    #dependsOn: ${{ parameters.dependsOn }}
-    #condition: ${{ parameters.condition }}
     workspace:
       clean: all
     strategy:
