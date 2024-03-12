@@ -3,17 +3,21 @@ parameters:
     type: string
   - name: condition
     default: succeeded()
+  - name: agentPool
+    type: string
+  - name: projectName
+    type: string
 jobs:
   - deployment: "Deploy_${{ parameters.env }}"
     displayName: "Deploy ${{ parameters.env }}"
     timeoutInMinutes: 300
     variables:
       - name: folderName
-        value: ${{ variables.projectName }}/
+        value: ${{ parameters.projectName }}/
     environment: aks-cd-${{ parameters.env }}
     pool: ${{ variables.agentPool }}
-    dependsOn: ${{ parameters.dependsOn }}
-    condition: ${{ parameters.condition }}
+    #dependsOn: ${{ parameters.dependsOn }}
+    #condition: ${{ parameters.condition }}
     workspace:
       clean: all
     strategy:
@@ -24,49 +28,17 @@ jobs:
             - checkout: self
               path: source
               clean: true
-            - checkout: commons
+            - checkout: pipeline-commons
               path: commons
               clean: true
-            - task: PowerShell@2
-              displayName: "Generate common variables"
-              inputs:
-                targetType: "inline"
-                script: |
-                  Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
-                  Install-Module powershell-yaml -Confirm:$false 
-                  $infra_vars = Get-Content common/variables/${{ parameters.env }}.tpl.yaml | ConvertFrom-Yaml 
-                  $aks_vars =  Get-Content aks/variables/${{ parameters.env }}.tpl.yaml | ConvertFrom-Yaml
-
-                  # Todos: merger two hashtables with same keys
-                  $aks_vars.variables += $infra_vars.variables
-                  $values = @{"common"=$aks_vars.variables}
-
-                  ConvertTo-Yaml $values | Out-File -Path ./common-values.yaml
-                  Get-Content ./common-values.yaml
-                pwsh: true
-                workingDirectory: $(Pipeline.Workspace)/commons
             - task: PowerShell@2
               displayName: "Prepare chart"
               inputs:
                 targetType: "inline"
                 script: |
                   $appVersion = "$(Build.BuildNumber)"
-                  Write-Host "Deployment only: ${{ parameters.deploymentOnly }}"
-                  if ("${{ parameters.deploymentOnly }}" -eq "True") {
-                    $appVersion = "${{ parameters.dockerTagOverride }}"
-                  }
-                  if (("$appVersion" -eq "") -or ("$appVersion" -eq " ")) {
-                    Write-Host "Invalid app version"
-                    exit 1
-                  }
                   Write-Host "App version: $appVersion"
                   Write-Host "Chart version: $(major).$(minor).$(patch)"
-                  Write-Host "Prepare helm templates"
-                  if (Test-Path "$(Pipeline.Workspace)/helm") {
-                    Remove-Item -Recurse -Force "$(Pipeline.Workspace)/helm"
-                  }
-                  Copy-Item -Path "$(Pipeline.Workspace)/commons/aks/helm" -Destination "$(Pipeline.Workspace)/helm" -Recurse
-
                   Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
                   Install-Module powershell-yaml -Confirm:$false 
 
@@ -76,15 +48,12 @@ jobs:
                   $chart = ConvertFrom-Yaml $yaml
                   $chart['version'] = "$(major).$(minor).$(patch)"
                   $chart['appVersion'] = $appVersion
-                  ConvertTo-Yaml $chart | Out-File -Path $(Pipeline.Workspace)/helm/Chart.yaml
+                  ConvertTo-Yaml $chart | Out-File -Path Chart.yaml
 
                   Write-Host "Updated Chart.yaml"
-                  Get-Content $(Pipeline.Workspace)/helm/Chart.yaml
+                  Get-Content Chart.yaml
                 pwsh: true
-                ${{ if eq(variables.helmRoot, '')}}:
-                  workingDirectory: "$(Pipeline.Workspace)/source/helm"
-                ${{ if ne(variables.helmRoot, '')}}:
-                  workingDirectory: "$(Pipeline.Workspace)/source/${{ variables.helmRoot }}"
+                workingDirectory: "$(Pipeline.Workspace)/commons/aks/helm"
             - task: AzureCLI@2
               displayName: "Helm upgrade"
               inputs:
@@ -126,3 +95,4 @@ jobs:
                   workingDirectory: "$(Pipeline.Workspace)/source/helm"
                 ${{ if ne(variables.helmRoot, '')}}:
                   workingDirectory: "$(Pipeline.Workspace)/source/${{ variables.helmRoot }}"
+              enabled: false

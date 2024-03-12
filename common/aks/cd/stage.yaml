@@ -3,6 +3,12 @@ parameters:
     type: string
   - name: condition
     default: succeeded()
+  - name: agentPool
+    type: string
+    default: 'Azure Pipelines'
+  - name: projectName
+    type: string
+    default: 'Test'
 
 stages:
   - stage: "CD_${{ parameters.env }}"
@@ -12,3 +18,5 @@ stages:
       - template: job.yaml
         parameters:
           env: ${{ parameters.env }}
+          agentPool: ${{ parameters.agentPool }}
+          projectName: ${{ parameters.projectName }}
