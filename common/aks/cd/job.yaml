@@ -26,7 +26,7 @@ jobs:
             - checkout: self
               path: source
               clean: true
-            - checkout: pipeline-commons
+            - checkout: commons
               path: commons
               clean: true
             - task: PowerShell@2
