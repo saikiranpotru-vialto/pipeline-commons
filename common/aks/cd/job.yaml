@@ -11,9 +11,6 @@ jobs:
   - deployment: "Deploy_${{ parameters.env }}"
     displayName: "Deploy ${{ parameters.env }}"
     timeoutInMinutes: 300
-    variables:
-      - name: folderName
-        value: ${{ parameters.projectName }}/
     environment: aks-cd-${{ parameters.env }}
     pool: ${{ parameters.agentPool }}
     workspace:
@@ -35,21 +32,26 @@ jobs:
                 targetType: "inline"
                 script: |
                   $appVersion = "$(Build.BuildNumber)"
+                  $chartVersion = "$(major).$(minor).$(patch)"
                   Write-Host "App version: $appVersion"
-                  Write-Host "Chart version: $(major).$(minor).$(patch)"
+                  Write-Host "Chart version: $chartVersion"
                   Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
                   Install-Module powershell-yaml -Confirm:$false 
 
                   Write-Host "Prepare Chart.yaml"
                   $yaml = Get-Content -Path Chart.yaml | Out-String
-                  Write-Host $yaml
                   $chart = ConvertFrom-Yaml $yaml
-                  $chart['version'] = "$(major).$(minor).$(patch)"
+                  $chart['name']=  "${{ parameters.projectName }}"
+                  $chart['description']=  "A Helm chart for Kubernetes ${{ parameters.projectName }}: ${{ parameters.env }}"
+                  $chart['version'] = "$chartVersion"
                   $chart['appVersion'] = $appVersion
                   ConvertTo-Yaml $chart | Out-File -Path Chart.yaml
-
-                  Write-Host "Updated Chart.yaml"
+                  Write-Host "==== Prepared Chart ====="
                   Get-Content Chart.yaml
+
+                  Write-Host " Prepare _helpers.tpl"
+                  $helpers = (Get-Content -Path "templates/_helpers.tpl").Replace('TBD', '${{ parameters.projectName }}')
+                  $helpers
                 pwsh: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
             - task: AzureCLI@2
