@@ -70,6 +70,8 @@ jobs:
                       Get-Content "templates/$yamlfile"
                       Write-Host "==== ===="
                   }
+                  Copy-Item -Path "$(Pipeline.Workspace)/source/helm/immigration/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
+                  ls -la
                 pwsh: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
             - task: AzureCLI@2
@@ -97,4 +99,4 @@ jobs:
                   #helm upgrade -f values.yaml -f ../commons/common-values.yaml -n ${{ parameters.env }} --install --create-namespace --wait $(repoName) --set env=${{ parameters.env }} --set fullnameOverride=$(repoName) .
                 addSpnToEnvironment: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
-              enabled: true
+              enabled: false
