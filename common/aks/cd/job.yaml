@@ -41,17 +41,17 @@ jobs:
                   Install-Module powershell-yaml -Confirm:$false 
 
                   Write-Host "Prepare Chart.yaml"
-                  $yaml = Get-Content -Path "aks/helmChart.yaml" | Out-String
+                  $yaml = Get-Content -Path Chart.yaml | Out-String
                   Write-Host $yaml
                   $chart = ConvertFrom-Yaml $yaml
                   $chart['version'] = "$(major).$(minor).$(patch)"
                   $chart['appVersion'] = $appVersion
-                  ConvertTo-Yaml $chart | Out-File -Path "aks/helmChart.yaml"
+                  ConvertTo-Yaml $chart | Out-File -Path Chart.yaml
 
                   Write-Host "Updated Chart.yaml"
-                  Get-Content "aks/helmChart.yaml"
+                  Get-Content Chart.yaml
                 pwsh: true
-                workingDirectory: "$(Pipeline.Workspace)/commons"
+                workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
             - task: AzureCLI@2
               displayName: "Helm upgrade"
               inputs:
