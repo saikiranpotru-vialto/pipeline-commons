@@ -1,0 +1,179 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "immigration.fullname" . }}
+  labels:
+    {{- include "immigration.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "immigration.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "immigration.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "immigration.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env: 
+            - name: ASPNETCORE_ENVIRONMENT
+              value: {{ .Values.ASPNETCORE_ENVIRONMENT }}
+            - name: "Auth0__ClientSecret"
+              valueFrom:
+                secretKeyRef:
+                  key:  AUTH0_CLIENT_SECRET
+                  name: immigration-infra-secret
+            - name: "ConnectionStrings__DefaultConnection"
+              valueFrom:
+                secretKeyRef:
+                  key:  SQLDB_CONNECTION_STRING
+                  name: immigration-infra-secret
+            - name: "RendezvousConfig__ClientSecret"
+              valueFrom:
+                secretKeyRef:
+                  key:  RENDEZVOUS_CONFIG_CLIENT_SECRET
+                  name: immigration-infra-secret
+            - name: "RendezvousConfig__Password"
+              valueFrom:
+                secretKeyRef:
+                  key:  RENDEZVOUS_CONFIG_PASSWORD
+                  name: immigration-infra-secret
+            - name: "JWT__Key"
+              valueFrom:
+                secretKeyRef:
+                  key:  JWT_KEY
+                  name: immigration-infra-secret
+            - name: "Saml__CertClientSecret"
+              valueFrom:
+                secretKeyRef:
+                  key:  SAML_CERT_CLIENT_SECRET
+                  name: immigration-infra-secret
+            - name: "Serilog__WriteTo__0__Args__connectionString"
+              valueFrom:
+                secretKeyRef:
+                  key:  ZWEIMMGAI_CONNECTION_STRING
+                  name: immigration-infra-secret
+            - name: "TigerApi__Certificate"
+              valueFrom:
+                secretKeyRef:
+                  key:  TIGER_API_BRIDGE
+                  name: immigration-infra-secret
+            - name: "Decryption__Certificate"
+              valueFrom:
+                secretKeyRef:
+                  key:  TIGER_CP_BRIDGE
+                  name: immigration-infra-secret
+            - name: "Saml__Certificate"
+              valueFrom:
+                secretKeyRef:
+                  key:  MME_SAML_KEY
+                  name: immigration-infra-secret
+            - name: "FormIoServer__APIKeyValue"
+              valueFrom:
+                secretKeyRef:
+                  key:  NEXT_PUBLIC_FORM_IO_API_KEY
+                  name: immigration-infra-secret
+            - name: "ConnectionStrings__DocumentConnection"
+              valueFrom:
+                secretKeyRef:
+                  key:  DOCUMENT_DB_CONNECTION_STRING
+                  name: immigration-infra-secret
+            - name: "CsiDriver_TestUpdate"
+              valueFrom:
+                secretKeyRef:
+                  key:  CSI_DRIVER_TEST
+                  name: immigration-infra-secret
+            - name: "ManagerCertificateConfig__Certificate"
+              valueFrom:
+                secretKeyRef:
+                  key:  IMMIGHUB-MANAGER-FLOW
+                  name: immigration-infra-secret
+            - name: "Auth0PreReg__ClientSecret"
+              valueFrom:
+                secretKeyRef:
+                  key:  AUTH0_CLIENT_SECRET_PRE_REG
+                  name: immigration-infra-secret
+            - name: "SendGridEmailSettings__ApiKey"
+              valueFrom:
+                secretKeyRef:
+                  key:  SENDGRID-EMAIL-APIKEY-PASSWORD
+                  name: immigration-infra-secret
+            - name: "DecisionrulesConfig__ApiKey"
+              valueFrom:
+                secretKeyRef:
+                  key:  DECISION_RULES_SERVER_CONFIG_API_KEY
+                  name: immigration-infra-secret
+            - name: "ConnectionStrings__WorkflowConnection"
+              valueFrom:
+                secretKeyRef:
+                  key:  WORKFLOW_DB_CONNECTION_STRING
+                  name: immigration-infra-secret
+            - name: "WorkflowSettings__ClientSecret"
+              valueFrom:
+                secretKeyRef:
+                  key:  WORKFLOW_CLIENT_SECRET
+                  name: immigration-infra-secret
+          ports:
+            - name: http
+  #            containerPort: 80
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          {{- if .Values.keyvault }}
+          volumeMounts:
+            {{- range $key, $value := .Values.keyvault.vaults }}
+            - name: "{{ include "immigration.fullname" $ | lower }}-{{ $key | lower }}"
+              mountPath: "/mnt/{{ $key }}-secrets-store"
+              readOnly: true
+            {{- end }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.keyvault }}
+      volumes:
+        {{- range $key, $value := .Values.keyvault.vaults }}
+        - name: "{{ include "immigration.fullname" $ | lower }}-{{ $key | lower }}"
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "{{ include "immigration.fullname" $ | lower }}-{{ $key | lower }}"
+        {{- end }}
+      {{- end }}
