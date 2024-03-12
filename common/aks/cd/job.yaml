@@ -7,6 +7,7 @@ parameters:
     type: string
   - name: serviceName
     type: string
+
 jobs:
   - deployment: "Deploy_${{ parameters.env }}"
     displayName: "Deploy ${{ parameters.env }}"
@@ -36,6 +37,7 @@ jobs:
                   ls -la ${{ parameters.serviceName }}
                 pwsh: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
+              enabled: false
             - task: PowerShell@2
               displayName: "Prepare chart"
               inputs:
@@ -60,20 +62,20 @@ jobs:
                   Get-Content Chart.yaml
 
                   Write-Host "Looping through template folder"
-                  $yamlfiles=(Get-ChildItem -Path "$(Pipeline.Workspace)/commons/common/aks/helm/templates" -Recurse -File).FullName.Replace("$(Pipeline.Workspace)/commons/common/aks/helm/templates/","")
+                  $yamlfiles=(Get-ChildItem -Path "templates" -Recurse -File).FullName.Replace("$(Pipeline.Workspace)/commons/common/aks/helm/templates/","")
                   foreach ($yamlfile in $yamlfiles)
                   {
-                      Write-Host "Replacement for file $yamlfile"
                       (Get-Content -Path "templates/$yamlfile").Replace('TBD', '${{ parameters.serviceName }}') | Out-File "templates/$yamlfile"
-                      Write-Host "==== After Replcement ===="
+                      Write-Host "==== Replacement: $yamlfile ===="
                       Get-Content "templates/$yamlfile"
+                      Write-Host "==== ===="
                   }
                 pwsh: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
             - task: AzureCLI@2
               displayName: "Helm upgrade"
               inputs:
-                azureSubscription: ${{ variables.azureSubscription }}
+                azureSubscription: $(azureSubscription)
                 scriptType: bash
                 scriptLocation: inlineScript
                 inlineScript: |
@@ -82,33 +84,17 @@ jobs:
                   az aks get-credentials --name $(aksName) --resource-group $(aksResourceGroup) --overwrite-existing
                   kubectl config use-context $(aksName)
 
-                  echo "Prepare working directories"
-                  rm -rf $(Pipeline.Workspace)/prep
-
-                  # templates application values tpl through helm
-                  echo "Generate values.yaml"
-                  cp -r $(Pipeline.Workspace)/commons/aks/helm $(Pipeline.Workspace)/prep
-                  ls -la $(Pipeline.Workspace)/prep
-                  rm -rf $(Pipeline.Workspace)/prep/templates/*.yaml
-                  cp values.${{ parameters.env }}.tpl.yaml $(Pipeline.Workspace)/prep/templates/
-                  helm template $(Pipeline.Workspace)/prep -f $(Pipeline.Workspace)/commons/common-values.yaml  --set env=${{ parameters.env }}  > $(Pipeline.Workspace)/helm/values.yaml
-                  cat $(Pipeline.Workspace)/helm/values.yaml
-                  rm -rf $(Pipeline.Workspace)/prep
-
-                  echo "Helm lint"
-                  cd $(Pipeline.Workspace)/helm/
+                  Copy-Item -Path "$(Pipeline.Workspace)/source/helm/immigration/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
                   ls -la
-                  helm lint -f values.yaml -f ../commons/common-values.yaml -n ${{ parameters.env }} --set env=${{ parameters.env }} --set fullnameOverride=$(repoName)
-                  helm template . -f values.yaml -f ../commons/common-values.yaml --set env=${{ parameters.env }} --set fullnameOverride=$(repoName) --debug
+                  
+                  #echo "Helm lint"
+                  #cd $(Pipeline.Workspace)/helm/
+                  #ls -la
+                  #helm lint -f values.yaml -f ../commons/common-values.yaml -n ${{ parameters.env }} --set env=${{ parameters.env }} --set fullnameOverride=$(repoName)
+                  #helm template . -f values.yaml -f ../commons/common-values.yaml --set env=${{ parameters.env }} --set fullnameOverride=$(repoName) --debug
 
-                  echo "Helm upgrade"
-                  helm upgrade -f values.yaml -f ../commons/common-values.yaml -n ${{ parameters.env }} --install --create-namespace --wait $(repoName) --set env=${{ parameters.env }} --set fullnameOverride=$(repoName) .
-
-                  echo "Clean-up"
-                  rm -rf $(Pipeline.Workspace)/helm
+                  #echo "Helm upgrade"
+                  #helm upgrade -f values.yaml -f ../commons/common-values.yaml -n ${{ parameters.env }} --install --create-namespace --wait $(repoName) --set env=${{ parameters.env }} --set fullnameOverride=$(repoName) .
                 addSpnToEnvironment: true
-                ${{ if eq(variables.helmRoot, '')}}:
-                  workingDirectory: "$(Pipeline.Workspace)/source/helm"
-                ${{ if ne(variables.helmRoot, '')}}:
-                  workingDirectory: "$(Pipeline.Workspace)/source/${{ variables.helmRoot }}"
-              enabled: false
+                workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
+              enabled: true
