@@ -73,7 +73,7 @@ jobs:
                   Copy-Item -Path "$(Pipeline.Workspace)/source/helm/immigration/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
                   ls -la
                   helm lint -f values-${{ parameters.env }}.yaml
-                  helm template . -f values-${{ parameters.env }}.yaml
+                  helm template . -f values-${{ parameters.env }}.yaml --set fullnameOverride=${{ parameters.serviceName }}
                 pwsh: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
             - task: AzureCLI@2
