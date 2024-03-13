@@ -9,7 +9,7 @@ parameters:
     default: 'Azure Pipelines'
   - name: serviceName
     type: string
-    default: 'Test'
+    default: 'immig-test'
 
 stages:
   - stage: "CD_${{ parameters.env }}"
