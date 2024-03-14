@@ -9,7 +9,7 @@ parameters:
     default: 'Immigration_Linux_Agent'
   - name: serviceName
     type: string
-    default: 'immig-test'
+    default: 'immigration'
 
 stages:
   - stage: "CD_${{ parameters.env }}"
