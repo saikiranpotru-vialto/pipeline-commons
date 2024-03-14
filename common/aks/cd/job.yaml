@@ -39,7 +39,7 @@ jobs:
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
               enabled: false
             - task: PowerShell@2
-              displayName: "Prepare chart"
+              displayName: "Prepare chart and Validate"
               inputs:
                 targetType: "inline"
                 script: |
@@ -88,8 +88,10 @@ jobs:
                   az aks get-credentials --name $(aksName) --resource-group $(aksResourceGroup) --overwrite-existing
                   kubectl config use-context $(aksName)
 
-                  Copy-Item -Path "$(Pipeline.Workspace)/source/helm/immigration/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
-                  ls -la
+                  helm upgrade -f values-${{ parameters.env }}.yaml -n ${{ parameters.env }} --install --create-namespace --wait $(namespace) --set image.tag=$(Build.BuildNumber) --set fullnameOverride=$(serviceName) .
+                 
+                  #Copy-Item -Path "$(Pipeline.Workspace)/source/helm/immigration/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
+                  #ls -la
                   
                   #echo "Helm lint"
                   #cd $(Pipeline.Workspace)/helm/

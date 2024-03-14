@@ -6,7 +6,7 @@ parameters:
     default: succeeded()
   - name: agentPool
     type: string
-    default: 'Azure Pipelines'
+    default: 'Immigration_Linux_Agent'
   - name: serviceName
     type: string
     default: 'immig-test'
