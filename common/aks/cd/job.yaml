@@ -70,7 +70,7 @@ jobs:
                       Get-Content "templates/$yamlfile"
                       Write-Host "==== ===="
                   }
-                  Copy-Item -Path "$(Pipeline.Workspace)/source/helm/immigration/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
+                  Copy-Item -Path "$(Pipeline.Workspace)/source/helm/workflow/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
                   ls -la
                   helm lint -f values-${{ parameters.env }}.yaml
                   helm template . -f values-${{ parameters.env }}.yaml --set fullnameOverride=${{ parameters.serviceName }}
