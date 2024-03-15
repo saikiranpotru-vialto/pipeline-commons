@@ -103,4 +103,4 @@ jobs:
                   #helm upgrade -f values.yaml -f ../commons/common-values.yaml -n ${{ parameters.env }} --install --create-namespace --wait $(repoName) --set env=${{ parameters.env }} --set fullnameOverride=$(repoName) .
                 addSpnToEnvironment: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
-              enabled: false
+              enabled: true
