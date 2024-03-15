@@ -90,7 +90,7 @@ jobs:
 
                   helm upgrade -f values-${{ parameters.env }}.yaml  -n $(namespace) --install --create-namespace --wait $(namespace) --set image.tag='20240315.6' --set fullnameOverride=${{ parameters.serviceName }} .
                  
-                  #Copy-Item -Path "$(Pipeline.Workspace)/source/helm/immigration/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
+                  #Copy-Item -Path "$(Pipeline.Workspace)/source/helm/workflow/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
                   #ls -la
                   
                   #echo "Helm lint"
