@@ -70,7 +70,7 @@ jobs:
                       Get-Content "templates/$yamlfile"
                       Write-Host "==== ===="
                   }
-                  Copy-Item -Path "$(Pipeline.Workspace)/source/helm/workflow/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
+                  Copy-Item -Path "$(Pipeline.Workspace)/source/helm/immigration/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
                   ls -la
                   helm lint -f values-${{ parameters.env }}.yaml
                   helm template . -f values-${{ parameters.env }}.yaml --set fullnameOverride=${{ parameters.serviceName }}
@@ -88,7 +88,7 @@ jobs:
                   az aks get-credentials --name $(aksName) --resource-group $(aksResourceGroup) --overwrite-existing
                   kubectl config use-context $(aksName)
 
-                  helm upgrade -f values-${{ parameters.env }}.yaml  -n $(namespace) --install --create-namespace --wait $(namespace) --set image.tag='20240313.1' --set fullnameOverride=${{ parameters.serviceName }} .
+                  helm upgrade -f values-${{ parameters.env }}.yaml  -n $(namespace) --install --create-namespace --wait $(namespace) --set image.tag='20240315.6' --set fullnameOverride=${{ parameters.serviceName }} .
                  
                   #Copy-Item -Path "$(Pipeline.Workspace)/source/helm/workflow/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
                   #ls -la
