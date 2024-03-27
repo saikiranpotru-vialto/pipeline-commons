@@ -28,17 +28,6 @@ jobs:
               path: commons
               clean: true
             - task: PowerShell@2
-              displayName: "Install Chart"
-              inputs:
-                targetType: "inline"
-                script: |
-                  $appVersion = "$(Build.BuildNumber)"
-                  helm create ${{ parameters.serviceName }}
-                  ls -la ${{ parameters.serviceName }}
-                pwsh: true
-                workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
-              enabled: false
-            - task: PowerShell@2
               displayName: "Prepare chart and Validate"
               inputs:
                 targetType: "inline"
@@ -89,18 +78,6 @@ jobs:
                   kubectl config use-context $(aksName)
 
                   helm upgrade -f values-${{ parameters.env }}.yaml  -n $(namespace) --install --create-namespace --wait $(namespace) --set image.tag='20240304.1' --set fullnameOverride=${{ parameters.serviceName }} .
-                 
-                  #Copy-Item -Path "$(Pipeline.Workspace)/source/helm/workflow/values-${{ parameters.env }}.yaml" -Destination "." -Recurse
-                  #ls -la
-                  
-                  #echo "Helm lint"
-                  #cd $(Pipeline.Workspace)/helm/
-                  #ls -la
-                  #helm lint -f values.yaml -f ../commons/common-values.yaml -n ${{ parameters.env }} --set env=${{ parameters.env }} --set fullnameOverride=$(repoName)
-                  #helm template . -f values.yaml -f ../commons/common-values.yaml --set env=${{ parameters.env }} --set fullnameOverride=$(repoName) --debug
-
-                  #echo "Helm upgrade"
-                  #helm upgrade -f values.yaml -f ../commons/common-values.yaml -n ${{ parameters.env }} --install --create-namespace --wait $(repoName) --set env=${{ parameters.env }} --set fullnameOverride=$(repoName) .
                 addSpnToEnvironment: true
                 workingDirectory: "$(Pipeline.Workspace)/commons/common/aks/helm"
               enabled: true

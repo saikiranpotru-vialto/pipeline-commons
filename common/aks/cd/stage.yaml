@@ -4,12 +4,8 @@ parameters:
     default: dev
   - name: condition
     default: succeeded()
-  - name: agentPool
-    type: string
-    default: 'Immigration_Linux_Agent'
   - name: serviceName
     type: string
-    default: 'document'
 
 stages:
   - stage: "CD_${{ parameters.env }}"
@@ -19,5 +15,5 @@ stages:
       - template: job.yaml
         parameters:
           env: ${{ parameters.env }}
-          agentPool: ${{ parameters.agentPool }}
+          agentPool: $(agentPool)
           serviceName: ${{ parameters.serviceName }}
