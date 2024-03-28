@@ -13,7 +13,8 @@ parameters:
     default: succeeded()
   - name: arguments
     type: string
-
+variables:
+  FEED_ACCESSTOKEN: 2dzxsd2gvls4rppxyu2vvqj6snpuba5wexfnrawvebtnpv22flwq
 jobs:
   - job: App_Build_Push_ACR
     displayName: "Build & Push ${{ parameters.acrname }}"
@@ -33,3 +34,10 @@ jobs:
             Dockerfile: ${{ parameters.arguments }}
           tags: '$(Build.BuildNumber)'
         enabled: true
+      - task: Docker@2
+        displayName: Docker Push
+        inputs:
+          containerRegistry: ${{ parameters.acrname }}
+          repository: ${{ parameters.repo }}
+          command: 'push'
+          tags: '$(Build.BuildNumber)'
