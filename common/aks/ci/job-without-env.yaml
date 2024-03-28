@@ -14,10 +14,6 @@ parameters:
   - name: arguments
     type: string
 
-variables:
-  - name: FEED_ACCESSTOKEN
-    value: 2dzxsd2gvls4rppxyu2vvqj6snpuba5wexfnrawvebtnpv22flwq
-
 jobs:
   - job: App_Build_Push_ACR
     displayName: "Build & Push ${{ parameters.acrname }}"
