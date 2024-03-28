@@ -29,7 +29,7 @@ jobs:
           Dockerfile: ${{ parameters.dockerfile }}
           buildContext: ${{ parameters.dockerBuildContext }}
           command: 'build'
-          arguments: '--build-arg FEED_ACCESSTOKEN=4a66bs3c3nkyxb4salqtuffwxlqhdxsaxrkewmizlu4qsaj2df6a'
+          arguments: '--build-arg FEED_ACCESSTOKEN='
           # ${{ if ne(variables.arguments, '')}}:
           #   arguments: ${{ parameters.arguments }}
           tags: '$(Build.BuildNumber)'
