@@ -29,8 +29,9 @@ jobs:
           Dockerfile: ${{ parameters.dockerfile }}
           buildContext: ${{ parameters.dockerBuildContext }}
           command: 'build'
-          ${{ if ne(variables.arguments, '')}}:
-            arguments: ${{ parameters.arguments }}
+          arguments: '--build-arg FEED_ACCESSTOKEN=2dzxsd2gvls4rppxyu2vvqj6snpuba5wexfnrawvebtnpv22flwq'
+          # ${{ if ne(variables.arguments, '')}}:
+          #   arguments: ${{ parameters.arguments }}
           tags: '$(Build.BuildNumber)'
         enabled: true
       - task: Docker@2
