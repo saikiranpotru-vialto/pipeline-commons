@@ -14,7 +14,7 @@ parameters:
   - name: condition
     default: succeeded()
   - name: arguments
-    default: '--build-arg FEED_ACCESSTOKEN=2dzxsd2gvls4rppxyu2vvqj6snpuba5wexfnrawvebtnpv22flwq'
+    default: '--build-arg FEED_ACCESSTOKEN=a'
 stages:
   - stage: "Build__Push"
     condition: ${{ parameters.condition }}
