@@ -30,7 +30,7 @@ jobs:
           buildContext: ${{ parameters.dockerBuildContext }}
           command: 'build'
           ${{ if ne(variables.arguments, '')}}:
-            Dockerfile: ${{ parameters.arguments }}
+            arguments: ${{ parameters.arguments }}
           tags: '$(Build.BuildNumber)'
         enabled: true
       - task: Docker@2
