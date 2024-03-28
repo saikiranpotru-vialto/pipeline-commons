@@ -1,19 +1,20 @@
 parameters:
   - name: acrname
     type: string
-    default: 'ZWECOERCRD001'
+    default: 'ZWEIMMGCRD001'
   - name: agentPool
     type: string
-    default: 'Azure Pipelines'
+    default: 'Immigration_Linux_Agent'
   - name: repo
     default: 'vialto/test'
   - name: dockerBuildContext
-    default: 'src/backend'
+    default: '$(Build.SourcesDirectory)/Immigration'
   - name: dockerfile
-    default: 'src/backend/ContingentWorkApi/Dockerfile'
+    default: '$(Build.SourcesDirectory)/Immigration/Vialto.Immigration.Web.Api.Employment/Dockerfile'
   - name: condition
     default: succeeded()
-
+  - name: arguments
+    default: '--build-arg FEED_ACCESSTOKEN=2dzxsd2gvls4rppxyu2vvqj6snpuba5wexfnrawvebtnpv22flwq'
 stages:
   - stage: "Build__Push"
     condition: ${{ parameters.condition }}
@@ -26,3 +27,4 @@ stages:
           agentPool: ${{ parameters.agentPool }}
           dockerBuildContext: ${{ parameters.dockerBuildContext }}
           dockerfile: ${{ parameters.dockerfile }}
+          arguments: ${{ parameters.arguments }}

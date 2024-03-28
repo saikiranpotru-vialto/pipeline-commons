@@ -11,6 +11,8 @@ parameters:
     type: string
   - name: condition
     default: succeeded()
+  - name: arguments
+    type: string
 
 jobs:
   - job: App_Build_Push_ACR
@@ -26,7 +28,8 @@ jobs:
           repository: ${{ parameters.repo }}
           Dockerfile: ${{ parameters.dockerfile }}
           buildContext: ${{ parameters.dockerBuildContext }}
-          tags: |
-            $(Build.BuildNumber)
-            latest
+          command: 'build'
+          ${{ if ne(variables.arguments, '')}}:
+            Dockerfile: ${{ parameters.arguments }}
+          tags: '$(Build.BuildNumber)'
         enabled: true
